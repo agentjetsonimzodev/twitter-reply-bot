@@ -1,0 +1,34 @@
+# ============================================================================
+# Twitter Reply Bot — tool configuration
+# ============================================================================
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv", "venv", "build", "dist"]
+
+[tool.ruff.lint]
+# Default ruleset:
+#   E, W  — pycodestyle (errors, warnings)
+#   F     — pyflakes (unused imports, undefined names, etc.)
+#   I     — isort (import sorting)
+#   UP    — pyupgrade (modern Python syntax for target-version)
+#   B     — flake8-bugbear (likely bugs)
+#   C4    — flake8-comprehensions
+select = ["E", "W", "F", "I", "UP", "B", "C4"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["bot", "tests"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = [
+    "-ra",                # show summary of all outcomes at the end
+    "--strict-markers",   # fail on unknown markers (typo protection)
+    "--tb=short",         # shorter tracebacks
+]
+markers = [
+    "integration: marks tests as integration (hit real network/services — NOT run in CI by default)",
+]
