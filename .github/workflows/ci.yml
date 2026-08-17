@@ -27,10 +27,10 @@ jobs:
 
       - name: Lint with ruff
         run: |
-          # Check for lint errors
-          ruff check .
-          # Check formatting (no diff = pass)
-          ruff format --check .
+          # Lint and format only Python source — skip docs in plan/ and *.md
+          # which contain Python code examples that aren't actual source.
+          ruff check bot/ tests/
+          ruff format --check bot/ tests/
 
       - name: Test with pytest
         run: |
