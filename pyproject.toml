@@ -5,7 +5,12 @@
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-extend-exclude = [".venv", "venv", "build", "dist"]
+# Exclude docs that contain Python code examples (not actual source):
+#   - plan/   — per-phase reference docs
+#   - **/*.md — all markdown files
+# Both contain Python snippets inside ```python blocks that shouldn't be
+# linted/formatted as if they were real source code.
+extend-exclude = [".venv", "venv", "build", "dist", "plan", "**/*.md"]
 
 [tool.ruff.lint]
 # Default ruleset:
