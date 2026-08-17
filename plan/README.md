@@ -12,7 +12,7 @@ Reference docs for each phase of the build. See the root [README](../README.md) 
 | 3  | Writes Module (tweepy)      | 🔴 Todo   | [phase-3-writes.md](./phase-3-writes.md)           |
 | 4  | Reply Store (SQLite)        | 🔴 Todo   | [phase-4-store.md](./phase-4-store.md)             |
 | 5  | AI Reply Generation         | 🔴 Todo   | [phase-5-ai.md](./phase-5-ai.md)                   |
-| 6  | Orchestration               | 🔴 Todo   | [phase-6-orchestration.md](./phase-6-orchestration.md) |
+| 6  | Orchestration + CLI         | 🔴 Todo   | [phase-6-orchestration.md](./phase-6-orchestration.md) |
 | 7  | Scheduling                  | 🔴 Todo   | [phase-7-scheduling.md](./phase-7-scheduling.md)   |
 | 8  | Observability & Safety      | 🔴 Todo   | [phase-8-observability.md](./phase-8-observability.md) |
 | 9  | Deployment                  | 🔴 Todo   | [phase-9-deployment.md](./phase-9-deployment.md)   |
@@ -37,3 +37,5 @@ Standard sections per phase:
 - **Safety:** every phase must respect the monthly/daily caps. See [phase-8-observability.md](./phase-8-observability.md).
 - **Ethics:** read the Safety section in the root README before posting anything real.
 - **Cost:** LLM calls + $5 VPS. Track per-reply cost in Phase 5; revisit in Phase 10.
+- **Draft mode:** Phases 4 and 6 support a human-review workflow (`pending_drafts` table + `python -m bot.main drafts` subcommand). Recommended for the first 1-2 weeks of running, then flip to auto-post. See [phase-6-orchestration.md](./phase-6-orchestration.md).
+- **CLI:** Phase 6 introduces a subcommand-based CLI (`run`, `status`, `review`, `drafts`, `export`). It's the primary human interface — logs are for machines.
