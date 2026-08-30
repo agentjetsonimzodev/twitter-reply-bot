@@ -53,6 +53,19 @@ def load_settings(env_file: str | Path = ".env") -> Settings:
 
 ## API surface
 
+### Imports
+
+```python
+from functools import lru_cache
+from pathlib import Path
+from typing import Literal
+
+from dotenv import load_dotenv
+from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import ValidationError
+```
+
 ### Sub-models (each is its own `BaseSettings`)
 
 ```python
@@ -69,7 +82,15 @@ class TwikitSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="TWIKIT_")
     username: str                      # TWIKIT_USERNAME
     password: SecretStr                # TWIKIT_PASSWORD
-    totp_secret: SecretStr             # TWIKIT_2FA_SECRET
+    # The Python field name `totp_secret` is more readable than
+    # `tfa_secret` or `two_fa_secret`, but pydantic-settings' default
+    # UPPER_SNAKE conversion would produce TWIKIT_TOTP_SECRET. We
+    # alias the field to TWIKIT_2FA_SECRET so .env.example stays
+    # unchanged while the Python attribute keeps its idiomatic name.
+    totp_secret: SecretStr = Field(
+        alias="TWIKIT_2FA_SECRET",
+        description="TOTP shared secret (base32, no padding) or otpauth:// URL",
+    )
 
     @field_validator("totp_secret")
     @classmethod
@@ -79,15 +100,15 @@ class TwikitSettings(BaseSettings):
         # or lowercase letters; without normalization, valid secrets get
         # rejected at setup time.
         raw = v.get_secret_value().strip().replace(" ", "").upper()
-        if raw.startswith("OTPauth://".upper()):
-            # Accept otpauth:// URLs (uppercase the scheme for matching).
+        # Accept otpauth:// URIs (RFC 6238). After normalization raw is
+        # uppercased, so we compare against the uppercased scheme.
+        if raw.startswith("OTPAUTH://"):
             return v
-        # Re.match-equivalent: fullmatch anchors at start AND end (no
-        # trailing-newline ambiguity from $). We intentionally reject
-        # "=" padding — RFC 4648 allows it, but no major authenticator
-        # app exports padded TOTP secrets; rejecting avoids a class of
-        # bugs where a 16-char secret without padding works but a 17+1
-        # padded one doesn't.
+        # Re.fullmatch anchors at start AND end (no trailing-newline
+        # ambiguity from $). We intentionally reject "=" padding — RFC
+        # 4648 allows it, but no major authenticator app exports padded
+        # TOTP secrets; rejecting avoids a class of bugs where a 16-char
+        # secret without padding works but a 17+1 padded one doesn't.
         if not re.fullmatch(r"[A-Z2-7]{16,}", raw):
             raise ValueError(
                 "must be base32 (≥16 chars from [A-Z2-7], no padding) "
@@ -228,8 +249,8 @@ def _format_pydantic_errors(e: ValidationError) -> list[str]:
     for err in e.errors():
         loc = ".".join(str(p) for p in err["loc"])
         msg = err["msg"]
-        # pydantic's "value" key is the raw input that failed — drop it
-        # for SecretStr fields, replace with a generic note.
+        # pydantic's "input" key carries the raw input that failed — drop
+        # it for SecretStr fields, replace with a generic note.
         problems.append(f"{loc}: {msg}")
     return problems
 
@@ -328,7 +349,7 @@ Invalid configuration in .env:
   - bot.jitter_max_s: Value error, must be > jitter_min_s (5), got 3
 ```
 
-**Critical:** `_format_pydantic_errors` must NEVER include the raw input value of a failed `SecretStr` — it strips the `value` key from the error to avoid leaking secrets into error messages.
+**Critical:** `_format_pydantic_errors` must NEVER include the raw input value of a failed `SecretStr` — it strips the `input` key from the error to avoid leaking secrets into error messages.
 
 ### Why cache `get_settings()`?
 
@@ -336,6 +357,10 @@ Invalid configuration in .env:
 - Modules (`bot/reads`, `bot/writes`, etc.) all call `get_settings()` — caching ensures one validation, many uses.
 - `clear_settings_cache()` lets tests start fresh and lets a user pick up `.env` edits after a process restart (in long-running contexts).
 - (Note: we do NOT auto-invalidate on `.env` mtime change — that lives in Future work below.)
+
+### Why `Field(alias=...)` for `totp_secret`?
+
+`totp_secret` is more readable than `tfa_secret` or `two_fa_secret`, but with `env_prefix="TWIKIT_"`, pydantic-settings' default UPPER_SNAKE conversion would produce the env var `TWIKIT_TOTP_SECRET`. We use `Field(alias="TWIKIT_2FA_SECRET")` so the Python attribute stays idiomatic while the env var name stays compatible with `.env.example` (which uses `TWIKIT_2FA_SECRET`).
 
 ### Why a `Literal` for `log_level`?
 
