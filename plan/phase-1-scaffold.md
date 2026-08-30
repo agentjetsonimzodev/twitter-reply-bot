@@ -48,4 +48,4 @@ Suggested test files to add in Phase 10:
 - We stopped short of `Dockerfile` and `docker-compose.yml` — those land in Phase 9.
 - We didn't add CI yet — that lands in Phase 8 or 10.
 - If you want to add a `LICENSE` before going public, do it now (MIT recommended).
-- The "Phase 1.5" reference (config loader) is folded into Phase 1 since it was small enough; treat it as a pre-requisite for Phase 2.
+- **Phase 1.5 (the config loader) now has its own design doc: [phase-1.5-config.md](./phase-1.5-config.md).** Use that as the source of truth for `bot/config.py` — its API surface, validators, and `get_settings()` factory are fully specified there. The 3 implementation issues (#5, #6, #7) all reference it.
