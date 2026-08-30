@@ -8,6 +8,7 @@ Reference docs for each phase of the build. See the root [README](../README.md) 
 |----|-----------------------------|------------|----------------------------------------------------|
 | 0  | Accounts & Credentials      | 🔴 Todo   | [phase-0-accounts.md](./phase-0-accounts.md)       |
 | 1  | Project Scaffold            | 🟢 Done   | [phase-1-scaffold.md](./phase-1-scaffold.md)       |
+| 1.5| Config Loader               | 🔴 Todo   | [phase-1.5-config.md](./phase-1.5-config.md)       |
 | 2  | Reads Module (twikit)       | 🔴 Todo   | [phase-2-reads.md](./phase-2-reads.md)             |
 | 3  | Writes Module (tweepy)      | 🔴 Todo   | [phase-3-writes.md](./phase-3-writes.md)           |
 | 4  | Reply Store (SQLite)        | 🔴 Todo   | [phase-4-store.md](./phase-4-store.md)             |
